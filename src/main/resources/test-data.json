@@ -1,0 +1,35 @@
+{
+  "messages": [
+    {
+      "lang": "EN",
+      "userMessage": "How do I renew my Dubai visa?",
+      "expectedResponse": "Dubai visa renewal is done through the official ICA website."
+    },
+    {
+      "lang": "EN",
+      "userMessage": "What is the UAE public holiday?",
+      "expectedResponse": "Public holidays in UAE are announced by the government."
+    },
+    {
+      "lang": "EN",
+      "userMessage": "Who is the ruler of dubai",
+      "expectedResponse": "Sheikh Mohammed bin Rashid Al Maktoum is the ruler of dubai"
+    },
+    {
+      "lang": "AR",
+      "userMessage": "كيف أجدد تأشيرة دبي؟",
+      "expectedResponse": "تجديد تأشيرة دبي يتم من خلال الموقع الرسمي للهيئة الاتحادية للهوية والجنسية."
+    },
+    {
+      "lang": "EN",
+      "userMessage": "Tell me a joke",
+      "expectedResponse": "I’m sorry. I’m not able to assist with your request. Please ask a different question."
+    },
+    {
+      "lang": "AR",
+      "userMessage": "قل لي نكتة",
+      "expectedResponse": "أنا آسف. لا يمكنني تلبية هذا الطلب. يرجى طرح سؤال آخر."
+
+    }
+  ]
+}
