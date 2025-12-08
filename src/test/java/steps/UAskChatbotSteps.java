@@ -14,6 +14,7 @@ import utils.TestDataLoader;
 
 import java.util.Iterator;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class UAskChatbotSteps {
@@ -30,6 +31,7 @@ public class UAskChatbotSteps {
     @When("I send the user input {string}")
     public void send_user_input(String userInput) {
         lastUserMessage = userInput;
+        chatWidget.isChatWidgetDisplayed();
         chatWidget.sendMessage(userInput);
         logger.info("Sent user input: {}", userInput);
     }
@@ -61,5 +63,34 @@ public class UAskChatbotSteps {
 
         assertTrue("AI response is semantically invalid for input: " + lastUserMessage, isValid);
     }
+
+    @Then("the chatbot should display the sent message {string}")
+    public void the_chatbot_should_display_the_sent_message(String sentMessage) {
+        String actualMessage = chatWidget.getLastUserMessage();
+        assertEquals("Chatbot did not display the correct sent message!", sentMessage.trim(), actualMessage.trim());
+        logger.info("The chatbot displays the sent message");
+    }
+
+    @Then("the input field should be cleared after sending the message")
+    public void verifyInputClearedAfterSending() {
+        String inputValue = chatWidget.getInputFieldValue();
+        boolean isCleared = (inputValue == null || inputValue.isBlank());
+
+        assertTrue("Input field is not cleared after sending the message.", isCleared);
+        logger.info("Input field is cleared");
+    }
+
+    @Then("the chatbot response should have clean formatting")
+    public void verifyResponseFormatting() {
+
+        String response = chatWidget.getLastChatbotResponse();
+
+        boolean htmlOK = AIResponseValidator.isValidHtml(response);
+        boolean complete = AIResponseValidator.isResponseComplete(response);
+
+        assertTrue("Chatbot returned broken HTML:\n" + response, htmlOK);
+        assertTrue("Chatbot response seems incomplete:\n" + response, complete);
+    }
+
 
 }

@@ -50,6 +50,10 @@ public class WebDriverUtils {
         return waitForElementVisible(locator).getText();
     }
 
+    public String getAttribute(By locator) {
+        return waitForElementVisible(locator).getAttribute("value");
+    }
+
     public boolean isDisplayed(By locator) {
         try {
             return waitForElementVisible(locator).isDisplayed();

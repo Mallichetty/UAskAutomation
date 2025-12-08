@@ -4,11 +4,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
+import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -98,4 +100,40 @@ public class AIResponseValidator {
             return false;
         }
     }
+
+    public static boolean isValidHtml(String text) {
+        try {
+            Document doc = Jsoup.parse(text);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static boolean isResponseComplete(String text) {
+        if (text == null || text.trim().isEmpty()) return false;
+
+        String trimmed = text.trim();
+
+        if (!trimmed.matches(".*[.!?]$")) return false;
+
+        String[] badEndings = {
+                "and", "but", "so", "because", "therefore", "however", "for example"
+        };
+
+        for (String ending : badEndings) {
+            if (trimmed.toLowerCase().endsWith(" " + ending)) {
+                return false;
+            }
+        }
+
+        if (trimmed.endsWith("**") || trimmed.endsWith("*") ||
+                trimmed.endsWith("<b>") || trimmed.endsWith("</") ||
+                trimmed.endsWith("<")) {
+            return false;
+        }
+
+        return true;
+    }
+
 }

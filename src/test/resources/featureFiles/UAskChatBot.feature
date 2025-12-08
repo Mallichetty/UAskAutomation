@@ -21,3 +21,16 @@ Feature: U-Ask Chatbot AI Response Validation
       | userMessage    |
       | Tell me a joke |
       | قل لي نكتة     |
+
+  @UAskChatBotFeature
+  Scenario Outline: Verify input field behavior after sending a message and validate chatbot response formatting
+    Given I login with valid credentials
+    When I send the user input "<userMessage>"
+    Then the chatbot should display the sent message "<userMessage>"
+    And the input field should be cleared after sending the message
+    Then the chatbot response should have clean formatting
+
+    Examples:
+      | userMessage    |
+      | Tell me a joke |
+      | قل لي نكتة     |

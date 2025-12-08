@@ -16,9 +16,10 @@ public class ChatWidgetPage {
 
     private By chatInputBox = By.xpath("//*[@id='chat-input']/p");
     private By sendButton = By.xpath("//*[@id='send-message-button']");
-    private By lastUserMessage = By.cssSelector(".chat-message.user:last-child");
+    private By lastUserMessage = By.xpath("//*[contains(@class,'user-message')]/div/div[2]/div/div[1]/div/p");
     private By lastChatbotResponse = By.xpath("//*[@id='response-content-container']/div");
     private By shimmerInvisibility = By.xpath("//*[@id='response-content-container']/div/div/span");
+    private By inputField = By.id("chat-input");
 
     public void enterMessage(String message) {
         utils.clearAndType(chatInputBox, message);
@@ -49,4 +50,9 @@ public class ChatWidgetPage {
     public void scrollToChatWidget() {
         utils.scrollIntoView(chatInputBox);
     }
+
+    public String getInputFieldValue() {
+        return utils.getAttribute(inputField);
+    }
+
 }
