@@ -3,33 +3,47 @@
     {
       "lang": "EN",
       "userMessage": "How do I renew my Dubai visa?",
-      "expectedResponse": "Dubai visa renewal is done through the official ICA website."
+      "expectedResponse": [
+        "You can renew your Dubai visa through GDRFA Dubai online or via the smart app.",
+        "Residency visas are typically renewed by your sponsor through approved typing centers.",
+        "You should begin the renewal process up to 30 days before your visa expires. There is a grace period after expiry, but it is best to renew before the deadline to avoid fines. \nAll applicants aged 18 and above must undergo a medical fitness test at an authorized center. This typically includes a physical exam, blood test, and chest X-ray"
+      ]
     },
     {
       "lang": "EN",
       "userMessage": "What is the UAE public holiday?",
-      "expectedResponse": "Public holidays in UAE are announced by the government."
+      "expectedResponse": [
+        "Islamic holidays in the UAE vary each year based on moon sightings.",
+        "The United Arab Emirates (UAE) observes a set of official public holidays each year, which apply to both the public and private sectors. These holidays are a mix of fixed Gregorian calendar dates and Islamic holidays, which are determined by the lunar calendar and may shift each year based on moon sighting"
+      ]
     },
     {
       "lang": "EN",
       "userMessage": "Who is the ruler of dubai",
-      "expectedResponse": "Sheikh Mohammed bin Rashid Al Maktoum is the ruler of dubai"
+      "expectedResponse": [
+        "Sheikh Mohammed bin Rashid Al Maktoum is the ruler of Dubai."
+      ]
     },
     {
       "lang": "AR",
       "userMessage": "كيف أجدد تأشيرة دبي؟",
-      "expectedResponse": "تجديد تأشيرة دبي يتم من خلال الموقع الرسمي للهيئة الاتحادية للهوية والجنسية."
+      "expectedResponse": [
+        "يمكن تجديد تأشيرة دبي عبر الموقع الرسمي للهيئة الاتحادية للهوية والجنسية."
+      ]
     },
     {
       "lang": "EN",
       "userMessage": "Tell me a joke",
-      "expectedResponse": "I’m sorry. I’m not able to assist with your request. Please ask a different question."
+      "expectedResponse": [
+        "I’m sorry, I can’t assist with that request. Please ask something else."
+      ]
     },
     {
       "lang": "AR",
       "userMessage": "قل لي نكتة",
-      "expectedResponse": "أنا آسف. لا يمكنني تلبية هذا الطلب. يرجى طرح سؤال آخر."
-
+      "expectedResponse": [
+        "أنا آسف، لا يمكنني المساعدة في هذا الطلب. يرجى طرح سؤال آخر."
+      ]
     }
   ]
 }

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -80,34 +79,42 @@ public class AIResponseValidator {
         return dot / (Math.sqrt(mag1) * Math.sqrt(mag2));
     }
 
-    public static boolean isSemanticallyValid(String actualResponse,
-                                              String expectedResponse) {
+    public static SemanticResult isSemanticallyValid(
+            String actualResponse,
+            List<String> expectedResponses) {
+
+        double bestScore = 0.0;
+        String bestExpected = null;
+
         try {
-
-            System.out.println("EXPECTED: " + expectedResponse);
-            System.out.println("ACTUAL: " + actualResponse);
-
-            List<Double> expectedVec = getEmbeddings(expectedResponse);
             List<Double> actualVec = getEmbeddings(actualResponse);
 
-            double score = cosineSimilarity(expectedVec, actualVec);
-            logger.info("Semantic Similarity Score: " + score);
+            for (String expected : expectedResponses) {
 
-            return score >= SIMILARITY_THRESHOLD;
+                List<Double> expectedVec = getEmbeddings(expected);
+                double cosine = cosineSimilarity(expectedVec, actualVec);
+
+                logger.info("Similarity with expected answer [{}] = {}", expected, cosine);
+
+                if (cosine > bestScore) {
+                    bestScore = cosine;
+                    bestExpected = expected;
+                }
+            }
+
+            boolean pass = bestScore >= SIMILARITY_THRESHOLD;
+
+            return new SemanticResult(pass, bestScore, bestExpected);
 
         } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+            logger.error("Semantic validation failed", e);
+            return new SemanticResult(false, 0.0, null);
         }
     }
 
     public static boolean isValidHtml(String text) {
-        try {
-            Document doc = Jsoup.parse(text);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
+            String doc = Jsoup.parse(text).text();
+            return doc.equalsIgnoreCase(text);
     }
 
     public static boolean isResponseComplete(String text) {

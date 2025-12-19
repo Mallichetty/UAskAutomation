@@ -4,15 +4,18 @@ import com.fasterxml.jackson.databind.JsonNode;
 import core.DriverFactory;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import io.qameta.allure.Allure;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import pages.ChatWidgetPage;
 import utils.AIResponseValidator;
-import utils.ScreenshotUtil;
+import utils.SemanticResult;
 import utils.TestDataLoader;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -37,31 +40,61 @@ public class UAskChatbotSteps {
     }
 
     @Then("the chatbot response should match the expected result from JSON")
-    public void validate_response_with_json() throws Exception {
+    public void validate_response_with_json() {
+
         aiResponse = chatWidget.getLastChatbotResponse();
         logger.info("AI Response: {}", aiResponse);
 
-        String expectedResponse = null;
+        List<String> expectedResponses = new ArrayList<>();
+
         Iterator<JsonNode> iter = messagesJson.elements();
         while (iter.hasNext()) {
             JsonNode node = iter.next();
-            if (node.get("userMessage").asText().equalsIgnoreCase(lastUserMessage)) {
-                expectedResponse = node.get("expectedResponse").asText();
+
+            if (node.get("userMessage").asText()
+                    .equalsIgnoreCase(lastUserMessage)) {
+
+                JsonNode expectedArray = node.get("expectedResponse");
+
+                if (expectedArray == null || !expectedArray.isArray()) {
+                    throw new RuntimeException(
+                            "'expectedResponse' missing or invalid for question: "
+                                    + lastUserMessage
+                    );
+                }
+
+                for (JsonNode ansNode : expectedArray) {
+                    String text = ansNode.asText();
+                    if (text != null && !text.isBlank()) {
+                        expectedResponses.add(text);
+                    }
+                }
                 break;
             }
         }
 
-        if (expectedResponse == null) {
-            throw new RuntimeException("Expected response not found in JSON for input: " + lastUserMessage);
+        if (expectedResponses.isEmpty()) {
+            throw new RuntimeException(
+                    "No valid expected responses found for input: "
+                            + lastUserMessage
+            );
         }
 
-        boolean isValid = AIResponseValidator.isSemanticallyValid(aiResponse, expectedResponse);
+        SemanticResult result =
+                AIResponseValidator.isSemanticallyValid(aiResponse, expectedResponses);
 
-        if (!isValid) {
-            ScreenshotUtil.takeScreenshotAs("SemanticValidationFailed");
-        }
+        Allure.addAttachment("User Question", lastUserMessage);
+        Allure.addAttachment("Actual Response", aiResponse);
+        Allure.addAttachment("Best Matched Expected Answer",
+                result.matchedExpected == null ? "NONE" : result.matchedExpected);
+        Allure.addAttachment("Cosine Similarity Score",
+                String.valueOf(result.cosineScore));
 
-        assertTrue("AI response is semantically invalid for input: " + lastUserMessage, isValid);
+        assertTrue(
+                "AI response failed semantic validation. Best cosine score: "
+                        + result.cosineScore,
+                result.isValid
+        );
     }
 
     @Then("the chatbot should display the sent message {string}")

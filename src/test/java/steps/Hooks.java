@@ -1,7 +1,10 @@
 package steps;
 
 import core.DriverFactory;
-import io.cucumber.java.*;
+import io.cucumber.java.After;
+import io.cucumber.java.AfterStep;
+import io.cucumber.java.Before;
+import io.cucumber.java.Scenario;
 import io.qameta.allure.Allure;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -11,6 +14,7 @@ import utils.ScreenshotUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
 public class Hooks {
@@ -28,21 +32,67 @@ public class Hooks {
         logger.info("Driver started and navigated to: {}", url);
     }
 
-    @After
-    public void tearDown() {
-        if (scenario.isFailed()) {
-            try {
-                String path = ScreenshotUtil.takeScreenshot(driver, scenario.getName().replaceAll("[\\s/]+", "_"));
-                if (path != null) {
+    @AfterStep
+    public void afterStep(Scenario scenario) {
+        try {
+            String screenshotPath = ScreenshotUtil.takeScreenshot(
+                    driver,
+                    scenario.getName().replaceAll("[\\s/]+", "_") + "_" + System.currentTimeMillis()
+            );
 
-                    File screenshotFile = new File(path);
+            if (screenshotPath != null) {
+                File screenshotFile = new File(screenshotPath);
+
+                if (screenshotFile.exists()) {
                     byte[] content = Files.readAllBytes(screenshotFile.toPath());
-                    Allure.addAttachment("Failed Screenshot", new ByteArrayInputStream(content));
-                    logger.error("Screenshot saved and attached to Allure report: {}", path);
+
+                    Allure.addAttachment(
+                            "Step Screenshot - " + scenario.getName(),
+                            "image/png",
+                            new ByteArrayInputStream(content),
+                            ".png"
+                    );
+
+                    logger.info("Step screenshot attached for scenario: {}", scenario.getName());
                 }
-            } catch (Exception e) {
-                logger.error("Failed to capture screenshot for scenario: {}", scenario.getName(), e);
             }
+        } catch (Exception e) {
+            logger.error("Failed to capture step screenshot", e);
+        }
+    }
+
+    @After
+    public void tearDown(Scenario scenario) {
+        try {
+            if (scenario.isFailed()) {
+                String path = ScreenshotUtil.takeScreenshot(
+                        driver,
+                        scenario.getName().replaceAll("[\\s/]+", "_") + "_FAILED"
+                );
+
+                if (path != null) {
+                    byte[] content = Files.readAllBytes(new File(path).toPath());
+                    Allure.addAttachment(
+                            "Failed Screenshot",
+                            "image/png",
+                            new ByteArrayInputStream(content),
+                            ".png"
+                    );
+                }
+
+                String failureInfo =
+                        "Scenario: " + scenario.getName() +
+                                "\nStatus: " + scenario.getStatus();
+
+                Allure.addAttachment(
+                        "Failure Summary",
+                        "text/plain",
+                        new ByteArrayInputStream(failureInfo.getBytes(StandardCharsets.UTF_8)),
+                        ".txt"
+                );
+            }
+        } catch (Exception e) {
+            logger.error("Error during failure handling", e);
         }
 
         DriverFactory.quitDriver();
